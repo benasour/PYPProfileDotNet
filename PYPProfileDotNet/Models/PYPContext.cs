@@ -8,6 +8,10 @@ namespace PYPProfileDotNet.Models
 {
     public class PYPContext : DbContext
     {
-        //public DbSet<UserProfile> Users { get; set; }
+        public DbSet<User> User { get; set; }
+        public DbSet<FriendStatus> FriendStatus { get; set; }
+        public DbSet<Game> Game { get; set; }
+        public DbSet<Friend> Friend { get; set; }
+        public DbSet<History> History { get; set; }
     }
 }
