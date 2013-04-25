@@ -18,14 +18,14 @@ namespace PYPProfileDotNet.Models
                 new User { UserId = 4, UserName = "Karl", Password = "password", Name = "Karl", Email = "email@example.com" },
                 new User { UserId = 5, UserName = "guest", Password = "password", Name = "guest", Email = "email@example.com" }
             };
-            users.ForEach(u => context.User.Add(u));
+            users.ForEach(u => context.Users.Add(u));
 
             var games = new List<Game>
             {
                 new Game { GameId = 1, Name = "Horse" },
                 new Game { GameId = 2, Name = "Coin" }
             };
-            games.ForEach(g => context.Game.Add(g));
+            games.ForEach(g => context.Games.Add(g));
 
             var friendStatuses = new List<FriendStatus>
             {
@@ -34,7 +34,7 @@ namespace PYPProfileDotNet.Models
                 new FriendStatus { StatusId = 3, Status = "requested" },
                 new FriendStatus { StatusId = 4, Status = "declined" }
             };
-            friendStatuses.ForEach(s => context.FriendStatus.Add(s));
+            friendStatuses.ForEach(s => context.FriendStatuses.Add(s));
 
             new List<Friend>
             {
@@ -48,7 +48,7 @@ namespace PYPProfileDotNet.Models
                 new Friend { User1 = users.Single(u => u.UserId == 3), User2 = users.Single(u => u.UserId == 2), Status = friendStatuses.Single(s => s.StatusId == 1) }, // Paul is friends with Ben
                 new Friend { User1 = users.Single(u => u.UserId == 2), User2 = users.Single(u => u.UserId == 5), Status = friendStatuses.Single(s => s.StatusId == 1) }, // Ben is friends with guest
                 new Friend { User1 = users.Single(u => u.UserId == 4), User2 = users.Single(u => u.UserId == 5), Status = friendStatuses.Single(s => s.StatusId == 2) }  // Karl has defriended guest
-            }.ForEach(f => context.Friend.Add(f));
+            }.ForEach(f => context.Friends.Add(f));
 
             new List<History>
             {
