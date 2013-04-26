@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Helpers;
 using System.Data.Entity;
 
 namespace PYPProfileDotNet.Models
@@ -10,13 +11,16 @@ namespace PYPProfileDotNet.Models
     {
         protected override void Seed(PYPContext context)
         {
+            string salt = Crypto.GenerateSalt();
+            string password = Crypto.HashPassword("password" + salt);
+
             var users = new List<User>
             {
-                new User { UserId = 1, UserName = "Andy", Password = "password", Name = "Andy", Email = "email@example.com" },
-                new User { UserId = 2, UserName = "Ben", Password = "password", Name = "Ben", Email = "email@example.com" },
-                new User { UserId = 3, UserName = "Paul", Password = "password", Name = "Paul", Email = "email@example.com" },
-                new User { UserId = 4, UserName = "Karl", Password = "password", Name = "Karl", Email = "email@example.com" },
-                new User { UserId = 5, UserName = "guest", Password = "password", Name = "guest", Email = "email@example.com" }
+                new User { UserId = 1, UserName = "Andy", Password = password, Salt = salt, Name = "Andy", Email = "email@example.com" },
+                new User { UserId = 2, UserName = "Ben", Password = password, Salt = salt, Name = "Ben", Email = "email@example.com" },
+                new User { UserId = 3, UserName = "Paul", Password = password, Salt = salt, Name = "Paul", Email = "email@example.com" },
+                new User { UserId = 4, UserName = "Karl", Password = password, Salt = salt, Name = "Karl", Email = "email@example.com" },
+                new User { UserId = 5, UserName = "guest", Password = password, Salt = salt, Name = "guest", Email = "email@example.com" }
             };
             users.ForEach(u => context.Users.Add(u));
 

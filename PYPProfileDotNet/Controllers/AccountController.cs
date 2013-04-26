@@ -5,6 +5,9 @@ using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.Security.Principal;
+using System.Web.Helpers;
+using System.Threading;
 using DotNetOpenAuth.AspNet;
 using Microsoft.Web.WebPages.OAuth;
 using WebMatrix.WebData;
@@ -33,11 +36,29 @@ namespace PYPProfileDotNet.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(LoginModel model, string returnUrl)
+        public ActionResult Login(UserLogin model, string returnUrl)
         {
-            if (ModelState.IsValid && WebSecurity.Login(model.UserName, model.Password, persistCookie: model.RememberMe))
+          
+            if (ModelState.IsValid)
             {
-                return RedirectToLocal(returnUrl);
+                using (PYPContext db = new PYPContext())
+                {
+                    // Lookup user by unique username
+                    User user = db.Users.SingleOrDefault(u => u.UserName == model.UserName);
+
+                    if (user != null && Crypto.VerifyHashedPassword(user.Password, model.Password + user.Salt))
+                    {
+                        // Credentials Passed Login the User
+                        FormsAuthentication.SetAuthCookie(user.Name, model.RememberMe);
+                        FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(Response.Cookies.Get(FormsAuthentication.FormsCookieName).Value);
+                        GenericPrincipal userPrincipal = new GenericPrincipal(new FormsIdentity(ticket), null);
+                        System.Web.HttpContext.Current.User = userPrincipal;
+                        Thread.CurrentPrincipal = userPrincipal;
+
+                        return RedirectToLocal(returnUrl);
+                    }
+                }
+
             }
 
             // If we got this far, something failed, redisplay form
@@ -52,7 +73,7 @@ namespace PYPProfileDotNet.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            WebSecurity.Logout();
+            FormsAuthentication.SignOut();
 
             return RedirectToAction("Index", "Home");
         }
@@ -72,21 +93,33 @@ namespace PYPProfileDotNet.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(RegisterModel model)
+        public ActionResult Register(UserRegistration model)
         {
             if (ModelState.IsValid)
             {
-                // Attempt to register the user
-                try
+                using (PYPContext db = new PYPContext())
                 {
-                    WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
-                    WebSecurity.Login(model.UserName, model.Password);
-                    return RedirectToAction("Index", "Home");
+                    User user = new User();
+                    user.Name = model.Name;
+                    user.Email = model.Email;
+                    user.UserName = model.UserName;
+                    user.Salt = Crypto.GenerateSalt();
+                    user.Password = Crypto.HashPassword(model.Password + user.Salt);
+
+                    // Save the new user to the database
+                    db.Users.Add(user);
+                    db.SaveChanges();
+
+                    // Login the new user
+                    FormsAuthentication.SetAuthCookie(user.Name, false);
+                    FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(Response.Cookies.Get(FormsAuthentication.FormsCookieName).Value);
+                    GenericPrincipal userPrincipal = new GenericPrincipal(new FormsIdentity(ticket), null);
+                    System.Web.HttpContext.Current.User = userPrincipal;
+                    Thread.CurrentPrincipal = userPrincipal;
                 }
-                catch (MembershipCreateUserException e)
-                {
-                    ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
-                }
+                
+                // Redirect to Home
+                return RedirectToAction("Index", "Home");
             }
 
             // If we got this far, something failed, redisplay form
