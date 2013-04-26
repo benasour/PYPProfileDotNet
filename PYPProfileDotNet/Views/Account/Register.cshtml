@@ -1,4 +1,4 @@
-﻿@model PYPProfileDotNet.Models.RegisterModel
+﻿@model PYPProfileDotNet.Models.UserRegistration
 @{
     ViewBag.Title = "Register";
 }
@@ -16,6 +16,14 @@
         <legend>Registration Form</legend>
         <ol>
             <li>
+                @Html.LabelFor(m => m.Name)
+                @Html.TextBoxFor(m => m.Name)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.Email)
+                @Html.EditorFor(m => m.Email)
+            </li>
+            <li>
                 @Html.LabelFor(m => m.UserName)
                 @Html.TextBoxFor(m => m.UserName)
             </li>
@@ -24,8 +32,8 @@
                 @Html.PasswordFor(m => m.Password)
             </li>
             <li>
-                @Html.LabelFor(m => m.ConfirmPassword)
-                @Html.PasswordFor(m => m.ConfirmPassword)
+                @Html.LabelFor(m => m.PasswordConfirmation)
+                @Html.PasswordFor(m => m.PasswordConfirmation)
             </li>
         </ol>
         <input type="submit" value="Register" />
