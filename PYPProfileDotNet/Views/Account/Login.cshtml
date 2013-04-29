@@ -42,7 +42,8 @@
 
 <section class="social" id="socialLoginForm">
     <h2>Use another service to log in.</h2>
-    @Html.Action("ExternalLoginsList", new { ReturnUrl = ViewBag.ReturnUrl })
+    <div><p>We currently only support logging in with a PYP account.</p></div>
+    @*@Html.Action("ExternalLoginsList", new { ReturnUrl = ViewBag.ReturnUrl })*@
 </section>
 
 @section Scripts {

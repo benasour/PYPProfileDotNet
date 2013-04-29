@@ -1,15 +1,28 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
+
 namespace PYPProfileDotNet.Models
 {
     public class User
     {
-        
+        [Key]
         public int UserId { get; set; }
+
+        [Required]
         public string UserName { get; set; }
+
+        [Required]
         public string Name { get; set; }
+
+        [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        [Required]
         public string Salt { get; set; }
     }
 
@@ -23,16 +36,18 @@ namespace PYPProfileDotNet.Models
         public string Email { get; set; }
 
         [Required]
+        [Remote("IsUniqueUserName", "Account")]
         [Display(Name = "User Name")]
         public string UserName { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Your password must be between 6 and 100 characters")]
         public string Password { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "The password and confirmation password are not the same")]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "The password and confirmation password are not the same")]
         [Display(Name = "Confirmation Password")]
         public string PasswordConfirmation { get; set; }
     }
