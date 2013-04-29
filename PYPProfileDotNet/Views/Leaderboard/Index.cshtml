@@ -30,7 +30,7 @@
     @foreach ( var record in Model )
     {
         <tr class="tabledata">
-            <td class="player">@Html.ActionLink(record.User.UserName, "../Profile/RecentGames/", new { user_id = record.User.UserId } )</td>
+            <td class="player">@Html.ActionLink(record.User.Name, "RecentGames", "Account", new { user_id = record.User.UserId }, null) @*@Html.ActionLink(record.User.UserName, "../Profile/RecentGames/", new { user_id = record.User.UserId } )*@</td>
             <td class="score">@record.Score</td>
         </tr>
     }
