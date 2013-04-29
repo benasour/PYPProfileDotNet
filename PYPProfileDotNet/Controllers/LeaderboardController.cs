@@ -16,7 +16,7 @@ namespace PYPProfileDotNet.Controllers
         //
         // GET: /Leaderboard/
 
-        public ActionResult Index( int game_id = 1 )
+        public ActionResult Index( int game_id = 1, string filter = "Global" )
         {
             IEnumerable<Game> gameQuery =
                 from games in db.Games
@@ -24,6 +24,7 @@ namespace PYPProfileDotNet.Controllers
 
             ViewBag.Games = gameQuery.ToList();
             ViewBag.GameId = game_id;
+            ViewBag.Filter = filter;
 
             IEnumerable<User> userQuery =
                 from users in db.Users
@@ -31,15 +32,60 @@ namespace PYPProfileDotNet.Controllers
 
             ViewBag.Users = userQuery.ToList();
 
-            var leaderboardQuery =
-                from h in db.History
-                where h.Game.GameId == game_id
-                group h by new { user = h.User } into g
-                select new Leaderboard
+            IQueryable<Leaderboard> leaderboardQuery;
+
+            if (filter.Equals("Friends"))
+            {
+                User thisUser = db.Users.Single(u => u.UserName.Equals(User.Identity.Name));
+                var thisUserFriend1Entries =
+                    from f in db.Friends
+                    join u in db.Users
+                    on f.User1 equals u
+                    where u.UserName.Equals(User.Identity.Name) && f.Status.Status.Equals("accepted")
+                    select f;
+                
+                var thisUserFriend2Entries =
+                    from f in db.Friends
+                    join u in db.Users
+                    on f.User2 equals u
+                    where u.UserName.Equals(User.Identity.Name) && f.Status.Status.Equals("accepted")
+                    select f;
+                List<int> friendUsers = new List<int>();
+                friendUsers.Add(thisUser.UserId);
+
+                foreach (Friend friend in thisUserFriend1Entries)
                 {
-                    User = g.Key.user,
-                    Score = g.Sum(h => h.Score)
-                };
+                    friendUsers.Add(friend.User2.UserId);
+                }
+                foreach (Friend friend in thisUserFriend2Entries)
+                {
+                    friendUsers.Add(friend.User1.UserId);
+                }
+
+                leaderboardQuery =
+                    from h in db.History
+                    where h.Game.GameId == game_id && friendUsers.Contains(h.User.UserId)
+                    group h by new { user = h.User } into g
+                    select new Leaderboard
+                    {
+                        User = g.Key.user,
+                        Score = g.Sum(h => h.Score)
+                    };
+            }
+
+            else // Global case
+            {
+                leaderboardQuery =
+                    from h in db.History
+                    where h.Game.GameId == game_id
+                    group h by new { user = h.User } into g
+                    select new Leaderboard
+                    {
+                        User = g.Key.user,
+                        Score = g.Sum(h => h.Score)
+                    };
+            }
+
             var sortedLeaderboard = leaderboardQuery.OrderByDescending(s => s.Score);
             var leaderboardList = sortedLeaderboard.Take(10).ToList();
 
