@@ -508,6 +508,7 @@ textarea {
 
 input.input-validation-error {
     border: 1px solid #e80c4d;
+    background: rgba(232, 12, 77, 0.32);
 }
 
 input[type="checkbox"].input-validation-error {

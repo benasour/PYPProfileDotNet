@@ -10,5 +10,8 @@ namespace PYPProfileDotNet.Models
     {
         public DbSet<Friend> Friends { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<FriendStatus> FriendStatuses { get; set; }
+        public DbSet<Game> Games { get; set; }
+        public DbSet<History> History { get; set; }
     }
 }

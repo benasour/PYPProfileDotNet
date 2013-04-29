@@ -24,7 +24,7 @@ namespace PYPProfileDotNet.Controllers
                 from friend in db.Friends
                 join user in db.Users on friend.user_id2 equals user.UserId //gives name of second user
                 where friend.user_id1 == curUser
-                select new FriendResult { tempID = friend.tempID, friendStatus = friend.status_id, friendName = user.Name };
+                select new FriendResult { id = friend.id, friendStatus = friend.status_id, friendName = user.Name };
             
             return View(friendQuery.ToList()); 
         }

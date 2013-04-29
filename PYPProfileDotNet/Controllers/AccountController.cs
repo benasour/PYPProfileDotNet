@@ -4,7 +4,11 @@ using System.Linq;
 using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI;
 using System.Web.Security;
+using System.Security.Principal;
+using System.Web.Helpers;
+using System.Threading;
 using DotNetOpenAuth.AspNet;
 using Microsoft.Web.WebPages.OAuth;
 using WebMatrix.WebData;
@@ -14,14 +18,13 @@ using PYPProfileDotNet.Models;
 namespace PYPProfileDotNet.Controllers
 {
     [Authorize]
-    [InitializeSimpleMembership]
     public class AccountController : Controller
     {
         //
         // GET: /Account/Login
 
         [AllowAnonymous]
-        public ActionResult Login(string returnUrl)
+        public ViewResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
             return View();
@@ -33,11 +36,29 @@ namespace PYPProfileDotNet.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(LoginModel model, string returnUrl)
+        public ActionResult Login(UserLogin model, string returnUrl)
         {
-            if (ModelState.IsValid && WebSecurity.Login(model.UserName, model.Password, persistCookie: model.RememberMe))
+          
+            if (ModelState.IsValid)
             {
-                return RedirectToLocal(returnUrl);
+                using (PYPContext db = new PYPContext())
+                {
+                    // Lookup user by unique username
+                    User user = db.Users.SingleOrDefault(u => u.UserName == model.UserName);
+
+                    if (user != null && Crypto.VerifyHashedPassword(user.Password, model.Password + user.Salt))
+                    {
+                        // Credentials Passed Login the User
+                        FormsAuthentication.SetAuthCookie(user.Name, model.RememberMe);
+                        FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(Response.Cookies.Get(FormsAuthentication.FormsCookieName).Value);
+                        GenericPrincipal userPrincipal = new GenericPrincipal(new FormsIdentity(ticket), null);
+                        System.Web.HttpContext.Current.User = userPrincipal;
+                        Thread.CurrentPrincipal = userPrincipal;
+
+                        return RedirectToLocal(returnUrl);
+                    }
+                }
+
             }
 
             // If we got this far, something failed, redisplay form
@@ -50,9 +71,9 @@ namespace PYPProfileDotNet.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult LogOff()
+        public RedirectToRouteResult LogOff()
         {
-            WebSecurity.Logout();
+            FormsAuthentication.SignOut();
 
             return RedirectToAction("Index", "Home");
         }
@@ -61,7 +82,7 @@ namespace PYPProfileDotNet.Controllers
         // GET: /Account/Register
 
         [AllowAnonymous]
-        public ActionResult Register()
+        public ViewResult Register()
         {
             return View();
         }
@@ -72,55 +93,39 @@ namespace PYPProfileDotNet.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(RegisterModel model)
+        public ActionResult Register(UserRegistration model)
         {
             if (ModelState.IsValid)
             {
-                // Attempt to register the user
-                try
+                using (PYPContext db = new PYPContext())
                 {
-                    WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
-                    WebSecurity.Login(model.UserName, model.Password);
-                    return RedirectToAction("Index", "Home");
+                    User user = new User();
+                    user.Name = model.Name;
+                    user.Email = model.Email;
+                    user.UserName = model.UserName;
+                    user.Salt = Crypto.GenerateSalt();
+                    user.Password = Crypto.HashPassword(model.Password + user.Salt);
+
+                    // Save the new user to the database
+                    db.Users.Add(user);
+                    db.SaveChanges();
+
+                    // Login the new user
+                    FormsAuthentication.SetAuthCookie(user.Name, false);
+                    FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(Response.Cookies.Get(FormsAuthentication.FormsCookieName).Value);
+                    GenericPrincipal userPrincipal = new GenericPrincipal(new FormsIdentity(ticket), null);
+                    System.Web.HttpContext.Current.User = userPrincipal;
+                    Thread.CurrentPrincipal = userPrincipal;
                 }
-                catch (MembershipCreateUserException e)
-                {
-                    ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
-                }
+                
+                // Redirect to Home
+                return RedirectToAction("Index", "Home");
             }
 
             // If we got this far, something failed, redisplay form
             return View(model);
         }
 
-        //
-        // POST: /Account/Disassociate
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Disassociate(string provider, string providerUserId)
-        {
-            string ownerAccount = OAuthWebSecurity.GetUserName(provider, providerUserId);
-            ManageMessageId? message = null;
-
-            // Only disassociate the account if the currently logged in user is the owner
-            if (ownerAccount == User.Identity.Name)
-            {
-                // Use a transaction to prevent the user from deleting their last login credential
-                using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.Serializable }))
-                {
-                    bool hasLocalAccount = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
-                    if (hasLocalAccount || OAuthWebSecurity.GetAccountsFromUserName(User.Identity.Name).Count > 1)
-                    {
-                        OAuthWebSecurity.DeleteAccount(provider, providerUserId);
-                        scope.Complete();
-                        message = ManageMessageId.RemoveLoginSuccess;
-                    }
-                }
-            }
-
-            return RedirectToAction("Manage", new { Message = message });
-        }
 
         //
         // GET: /Account/Manage
@@ -201,131 +206,39 @@ namespace PYPProfileDotNet.Controllers
         }
 
         //
-        // POST: /Account/ExternalLogin
-
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult ExternalLogin(string provider, string returnUrl)
+        // GET: /Account/RecentGames/
+        public ActionResult RecentGames(int user_id)
         {
-            return new ExternalLoginResult(provider, Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }));
-        }
-
-        //
-        // GET: /Account/ExternalLoginCallback
-
-        [AllowAnonymous]
-        public ActionResult ExternalLoginCallback(string returnUrl)
-        {
-            AuthenticationResult result = OAuthWebSecurity.VerifyAuthentication(Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }));
-            if (!result.IsSuccessful)
+            using ( PYPContext db = new PYPContext() )
             {
-                return RedirectToAction("ExternalLoginFailure");
-            }
+                IEnumerable<Game> gameQuery =
+                    from games in db.Games
+                    select games;
 
-            if (OAuthWebSecurity.Login(result.Provider, result.ProviderUserId, createPersistentCookie: false))
-            {
-                return RedirectToLocal(returnUrl);
-            }
+                ViewBag.Games = gameQuery.ToList();
 
-            if (User.Identity.IsAuthenticated)
-            {
-                // If the current user is logged in add the new account
-                OAuthWebSecurity.CreateOrUpdateAccount(result.Provider, result.ProviderUserId, User.Identity.Name);
-                return RedirectToLocal(returnUrl);
-            }
-            else
-            {
-                // User is new, ask for their desired membership name
-                string loginData = OAuthWebSecurity.SerializeProviderUserId(result.Provider, result.ProviderUserId);
-                ViewBag.ProviderDisplayName = OAuthWebSecurity.GetOAuthClientData(result.Provider).DisplayName;
-                ViewBag.ReturnUrl = returnUrl;
-                return View("ExternalLoginConfirmation", new RegisterExternalLoginModel { UserName = result.UserName, ExternalLoginData = loginData });
+                ViewBag.User = db.Users.Single(u => u.UserId == user_id);
+
+                IEnumerable<History> query =
+                    from history in db.History
+                    where history.User.UserId == user_id
+                    orderby history.Date descending
+                    select history;
+
+                return View(query.ToList());
             }
         }
 
-        //
-        // POST: /Account/ExternalLoginConfirmation
-
-        [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult ExternalLoginConfirmation(RegisterExternalLoginModel model, string returnUrl)
+        [OutputCache(Location = OutputCacheLocation.None, NoStore = true)]
+        public JsonResult IsUniqueUserName(string username)
         {
-            string provider = null;
-            string providerUserId = null;
+            //return false;
 
-            if (User.Identity.IsAuthenticated || !OAuthWebSecurity.TryDeserializeProviderUserId(model.ExternalLoginData, out provider, out providerUserId))
+            using (PYPContext db = new PYPContext())
             {
-                return RedirectToAction("Manage");
+                return db.Users.Any(u => u.UserName == username) ? Json(ErrorCodeToString(MembershipCreateStatus.DuplicateUserName), JsonRequestBehavior.AllowGet) : Json(true, JsonRequestBehavior.AllowGet);
             }
-
-            if (ModelState.IsValid)
-            {
-                // Insert a new user into the database
-                using (UsersContext db = new UsersContext())
-                {
-                    UserProfile user = db.UserProfiles.FirstOrDefault(u => u.UserName.ToLower() == model.UserName.ToLower());
-                    // Check if user already exists
-                    if (user == null)
-                    {
-                        // Insert name into the profile table
-                        db.UserProfiles.Add(new UserProfile { UserName = model.UserName });
-                        db.SaveChanges();
-
-                        OAuthWebSecurity.CreateOrUpdateAccount(provider, providerUserId, model.UserName);
-                        OAuthWebSecurity.Login(provider, providerUserId, createPersistentCookie: false);
-
-                        return RedirectToLocal(returnUrl);
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("UserName", "User name already exists. Please enter a different user name.");
-                    }
-                }
-            }
-
-            ViewBag.ProviderDisplayName = OAuthWebSecurity.GetOAuthClientData(provider).DisplayName;
-            ViewBag.ReturnUrl = returnUrl;
-            return View(model);
-        }
-
-        //
-        // GET: /Account/ExternalLoginFailure
-
-        [AllowAnonymous]
-        public ActionResult ExternalLoginFailure()
-        {
-            return View();
-        }
-
-        [AllowAnonymous]
-        [ChildActionOnly]
-        public ActionResult ExternalLoginsList(string returnUrl)
-        {
-            ViewBag.ReturnUrl = returnUrl;
-            return PartialView("_ExternalLoginsListPartial", OAuthWebSecurity.RegisteredClientData);
-        }
-
-        [ChildActionOnly]
-        public ActionResult RemoveExternalLogins()
-        {
-            ICollection<OAuthAccount> accounts = OAuthWebSecurity.GetAccountsFromUserName(User.Identity.Name);
-            List<ExternalLogin> externalLogins = new List<ExternalLogin>();
-            foreach (OAuthAccount account in accounts)
-            {
-                AuthenticationClientData clientData = OAuthWebSecurity.GetOAuthClientData(account.Provider);
-
-                externalLogins.Add(new ExternalLogin
-                {
-                    Provider = account.Provider,
-                    ProviderDisplayName = clientData.DisplayName,
-                    ProviderUserId = account.ProviderUserId,
-                });
-            }
-
-            ViewBag.ShowRemoveButton = externalLogins.Count > 1 || OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
-            return PartialView("_RemoveExternalLoginsPartial", externalLogins);
         }
 
         #region Helpers
