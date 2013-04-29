@@ -1,0 +1,39 @@
+﻿@model PYPProfileDotNet.Models.Friend
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Friend</legend>
+
+        <div class="editor-label">
+            @Html.DisplayNameFor(model => model.user_id2)
+            @Html.DisplayNameFor(model => model.status_id)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.user_id2)
+            @Html.ValidationMessageFor(model => model.status_id)
+
+            @Html.EditorFor(model => model.status_id)
+            @Html.ValidationMessageFor(model => model.status_id)
+        </div>
+
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

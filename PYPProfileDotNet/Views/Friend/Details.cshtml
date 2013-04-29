@@ -1,0 +1,22 @@
+﻿@model PYPProfileDotNet.Models.Friend
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>Friend</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.status_id)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.status_id)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.tempID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
