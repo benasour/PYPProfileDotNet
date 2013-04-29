@@ -49,7 +49,7 @@ namespace PYPProfileDotNet.Controllers
                     if (user != null && Crypto.VerifyHashedPassword(user.Password, model.Password + user.Salt))
                     {
                         // Credentials Passed Login the User
-                        FormsAuthentication.SetAuthCookie(user.Name, model.RememberMe);
+                        FormsAuthentication.SetAuthCookie(user.UserName, model.RememberMe);
                         FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(Response.Cookies.Get(FormsAuthentication.FormsCookieName).Value);
                         GenericPrincipal userPrincipal = new GenericPrincipal(new FormsIdentity(ticket), null);
                         System.Web.HttpContext.Current.User = userPrincipal;
@@ -111,7 +111,7 @@ namespace PYPProfileDotNet.Controllers
                     db.SaveChanges();
 
                     // Login the new user
-                    FormsAuthentication.SetAuthCookie(user.Name, false);
+                    FormsAuthentication.SetAuthCookie(user.UserName, false);
                     FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(Response.Cookies.Get(FormsAuthentication.FormsCookieName).Value);
                     GenericPrincipal userPrincipal = new GenericPrincipal(new FormsIdentity(ticket), null);
                     System.Web.HttpContext.Current.User = userPrincipal;
