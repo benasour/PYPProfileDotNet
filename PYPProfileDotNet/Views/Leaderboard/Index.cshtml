@@ -42,10 +42,16 @@
     }
 </table>
 
-@if ( ViewBag.Filter.Equals("Global") )
+
+@if (!ViewBag.isAuthenticated)
 {
-    <p>@Html.ActionLink("Friends", "Index", new { game_id = ViewBag.GameId, filter = "Friends" }) | Global</p>
+    <p>Friends | <strong>Global</strong></p>
 }
-else{
-    <p>Friends | @Html.ActionLink("Global", "Index", new { game_id = ViewBag.GameId, filter = "Global" })</p>
+else if ( ViewBag.Filter.Equals("Global") )
+{
+    <p>@Html.ActionLink("Friends", "Index", new { game_id = ViewBag.GameId, filter = "Friends" }) | <strong>Global</strong></p>
+}
+else
+{
+    <p><strong>Friends</strong> | @Html.ActionLink("Global", "Index", new { game_id = ViewBag.GameId, filter = "Global" })</p>
 }

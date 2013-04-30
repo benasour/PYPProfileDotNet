@@ -25,6 +25,7 @@ namespace PYPProfileDotNet.Controllers
             ViewBag.Games = gameQuery.ToList();
             ViewBag.GameId = game_id;
             ViewBag.Filter = filter;
+            ViewBag.isAuthenticated = User.Identity.IsAuthenticated;
 
             IEnumerable<User> userQuery =
                 from users in db.Users
@@ -34,8 +35,11 @@ namespace PYPProfileDotNet.Controllers
 
             IQueryable<Leaderboard> leaderboardQuery;
 
+            // Want to filter top players differently if Global or the current User's friends
+            // Friend Case
             if (filter.Equals("Friends"))
             {
+                // Grab all Friend entries where the current User is Friend.User1 and Friend.User2 and the friendship is "accepted"
                 User thisUser = db.Users.Single(u => u.UserName.Equals(User.Identity.Name));
                 var thisUserFriend1Entries =
                     from f in db.Friends
@@ -50,6 +54,8 @@ namespace PYPProfileDotNet.Controllers
                     on f.User2 equals u
                     where u.UserName.Equals(User.Identity.Name) && f.Status.Status.Equals("accepted")
                     select f;
+
+                // Add this User and all Friends into a List
                 List<int> friendUsers = new List<int>();
                 friendUsers.Add(thisUser.UserId);
 
@@ -62,6 +68,7 @@ namespace PYPProfileDotNet.Controllers
                     friendUsers.Add(friend.User1.UserId);
                 }
 
+                // Query db.History for sum of all results involving this custom User list
                 leaderboardQuery =
                     from h in db.History
                     where h.Game.GameId == game_id && friendUsers.Contains(h.User.UserId)
@@ -72,9 +79,10 @@ namespace PYPProfileDotNet.Controllers
                         Score = g.Sum(h => h.Score)
                     };
             }
-
-            else // Global case
+            // Global case
+            else
             {
+                // Query db.History for sum of all results per player
                 leaderboardQuery =
                     from h in db.History
                     where h.Game.GameId == game_id
