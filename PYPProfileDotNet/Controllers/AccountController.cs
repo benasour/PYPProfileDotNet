@@ -205,30 +205,6 @@ namespace PYPProfileDotNet.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Account/RecentGames/
-        public ActionResult RecentGames(int user_id)
-        {
-            using ( PYPContext db = new PYPContext() )
-            {
-                IEnumerable<Game> gameQuery =
-                    from games in db.Games
-                    select games;
-
-                ViewBag.Games = gameQuery.ToList();
-
-                ViewBag.User = db.Users.Single(u => u.UserId == user_id);
-
-                IEnumerable<History> query =
-                    from history in db.History
-                    where history.User.UserId == user_id
-                    orderby history.Date descending
-                    select history;
-
-                return View(query.ToList());
-            }
-        }
-
         [AllowAnonymous]
         [OutputCache(Location = OutputCacheLocation.None, NoStore = true)]
         public JsonResult IsUniqueUserName(string username)

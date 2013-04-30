@@ -16,8 +16,8 @@
 <br />
 
 <select id="game-select" onchange="selectGame()">
-    @foreach ( var game in @ViewBag.Games ) {
-        if ( game.GameId == @ViewBag.GameId ) {
+    @foreach ( var game in ViewBag.Games ) {
+        if ( game.GameId == ViewBag.GameId ) {
             <option value="@game.GameId" selected="selected">@game.Name</option>
         }
         else {
@@ -36,7 +36,7 @@
     @foreach ( var record in Model )
     {
         <tr class="tabledata">
-            <td class="player">@Html.ActionLink(record.User.Name, "RecentGames", "Account", new { user_id = record.User.UserId }, null) @*@Html.ActionLink(record.User.UserName, "../Profile/RecentGames/", new { user_id = record.User.UserId } )*@</td>
+            <td class="player">@Html.ActionLink(record.User.Name, "Index", "Profile", new { user_id = record.User.UserId }, null)</td>
             <td class="score">@record.Score</td>
         </tr>
     }

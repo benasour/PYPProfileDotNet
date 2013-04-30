@@ -16,6 +16,7 @@ namespace PYPProfileDotNet.Controllers
         //
         // GET: /Leaderboard/
 
+        [HandleError]
         public ActionResult Index( int game_id = 1, string filter = "Global" )
         {
             IEnumerable<Game> gameQuery =
@@ -40,7 +41,18 @@ namespace PYPProfileDotNet.Controllers
             if (filter.Equals("Friends"))
             {
                 // Grab all Friend entries where the current User is Friend.User1 and Friend.User2 and the friendship is "accepted"
-                User thisUser = db.Users.Single(u => u.UserName.Equals(User.Identity.Name));
+                User thisUser;
+                try
+                {
+                    thisUser = db.Users.Single(u => u.UserName.Equals(User.Identity.Name));
+                }
+                catch (InvalidOperationException e)
+                {
+                    // TODO: If this Exception gets thrown, it is never handled. Must handle this Exception.
+                    // This case is only in the event that the URL is manually adjusted. There is no possible navigation
+                    // that will meet this condition.
+                    throw new HttpException(401, "You must log in to view this.");
+                }
                 var thisUserFriend1Entries =
                     from f in db.Friends
                     join u in db.Users

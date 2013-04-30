@@ -1,0 +1,41 @@
+﻿@model IEnumerable<PYPProfileDotNet.Models.History>
+
+@{
+    ViewBag.Title = ViewBag.User.UserName + "\'s Profile";
+}
+
+<h1>@ViewBag.User.UserName</h1>
+
+<table>
+    <tr>
+        <td>
+            <h3>Recent Games</h3>
+            <table class="scoretable">
+                <tr>
+                    <th>Game</th>
+                    <th>Date</th>
+                    <th>Score</th>
+                </tr>
+                @foreach (var record in Model)
+                {
+                    <tr class="tabledata">
+                        <td class="game">@Html.DisplayFor(modelItem => record.Game.Name)</td>
+                        <td class="date">@Html.DisplayFor(modelItem => record.Date)</td>
+                        <td class="score">@Html.DisplayFor(modelItem => record.Score)</td>
+                    </tr>
+                }
+            </table>
+        </td>
+        <td style="vertical-align:text-top;">
+            <h3>Friends</h3>
+            <table class="friendlist">
+                @for (int i = 0; i < ViewBag.friendUserIds.Count; i++)
+                {
+                    <tr>
+                        <td>@Html.ActionLink((string)ViewBag.friendUserNames[i], "Index", new { user_id = ViewBag.friendUserIds[i] })</td>
+                    </tr>
+                }
+            </table>
+        </td>
+    </tr>
+</table>
