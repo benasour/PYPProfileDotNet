@@ -12,7 +12,7 @@ namespace PYPProfileDotNet.Controllers
         private PYPContext db = new PYPContext();
 
         //
-        // GET: /Profile/5
+        // GET: /Profile/
 
         public ActionResult Index(int user_id = 0)
         {
