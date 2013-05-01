@@ -46,12 +46,10 @@ namespace PYPProfileDotNet.Controllers
                 {
                     thisUser = db.Users.Single(u => u.UserName.Equals(User.Identity.Name));
                 }
-                catch (InvalidOperationException e)
+                catch (InvalidOperationException e) // This is the case where a user wants to see Friends, but isn't logged in.
                 {
-                    // TODO: If this Exception gets thrown, it is never handled. Must handle this Exception.
-                    // This case is only in the event that the URL is manually adjusted. There is no possible navigation
-                    // that will meet this condition.
-                    throw new HttpException(401, "You must log in to view this.");
+                    Response.StatusCode = 401;
+                    return Content("401", "text/plain");
                 }
                 var thisUserFriend1Entries =
                     from f in db.Friends
