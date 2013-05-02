@@ -12,18 +12,18 @@ namespace PYPProfileDotNet.Controllers
     public class FriendController : Controller
     {
         private PYPContext db = new PYPContext();
-        private int curUser;
+        private string curUser;
         //
         // GET: /Friend/
 
         public ActionResult Index(int id = 0)
         {
-            curUser = 3;// (int)HttpContext.Session["userId"];
+            curUser = User.Identity.Name;
             //do a query so when we go to the view we only show this user's friends
             IQueryable<FriendResult> friendQuery =
                 from friend in db.Friends
                 join user in db.Users on friend.User2.UserId equals user.UserId //gives name of second user
-                where friend.User1.UserId == curUser
+                where friend.User1.UserName == curUser
                 select new FriendResult { id = friend.id, friendStatus = friend.Status.Status, friendName = user.Name };
             
             return View(friendQuery.ToList()); 
@@ -59,8 +59,8 @@ namespace PYPProfileDotNet.Controllers
         [HttpPost]
         public ActionResult Create(Friend friend)
         {
-            curUser = 3;
-            friend.User1 = db.Users.Find(curUser);
+            curUser = User.Identity.Name;
+            friend.User1 = db.Users.Single( f => f.UserName == curUser);
 
             IQueryable<User> friendQuery =
                 from user in db.Users
