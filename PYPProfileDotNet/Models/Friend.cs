@@ -11,15 +11,16 @@ namespace PYPProfileDotNet.Models
     {
         [Key]
         public int id { get; set; }
-        public int user_id1 { get; set; }
-        public int user_id2 { get; set; }
-        public int status_id { get; set; }
+        public virtual User User1 { get; set; }
+        public virtual User User2 { get; set; }
+        public virtual FriendStatus Status { get; set; }
     }
 
     public class FriendResult
     {
         public int id { get; set; }
-        public int friendStatus { get; set; }
+        public string friendStatus { get; set; }
+        public int friendStatusId { get; set; }
         public string friendName { get; set; }
     }
 }

@@ -12,19 +12,19 @@ namespace PYPProfileDotNet.Controllers
     public class FriendController : Controller
     {
         private PYPContext db = new PYPContext();
-        private int curUser = 0;
+        private int curUser;
         //
         // GET: /Friend/
 
         public ActionResult Index(int id = 0)
         {
-                          
+            curUser = 3;// (int)HttpContext.Session["userId"];
             //do a query so when we go to the view we only show this user's friends
             IQueryable<FriendResult> friendQuery =
                 from friend in db.Friends
-                join user in db.Users on friend.user_id2 equals user.UserId //gives name of second user
-                where friend.user_id1 == curUser
-                select new FriendResult { id = friend.id, friendStatus = friend.status_id, friendName = user.Name };
+                join user in db.Users on friend.User2.UserId equals user.UserId //gives name of second user
+                where friend.User1.UserId == curUser
+                select new FriendResult { id = friend.id, friendStatus = friend.Status.Status, friendName = user.Name };
             
             return View(friendQuery.ToList()); 
         }
@@ -35,6 +35,7 @@ namespace PYPProfileDotNet.Controllers
         public ActionResult Details(int id = 0)
         {
             Friend friend = db.Friends.Find(id);
+            var user1 = friend.User1;
             if (friend == null)
             {
                 return HttpNotFound();
@@ -47,6 +48,8 @@ namespace PYPProfileDotNet.Controllers
         //adds friend
         public ActionResult Create()
         {
+            IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
+            ViewBag.statTypes = statTypes;
             return View();
         }
 
@@ -56,15 +59,30 @@ namespace PYPProfileDotNet.Controllers
         [HttpPost]
         public ActionResult Create(Friend friend)
         {
-            if (ModelState.IsValid)
-            {
-                friend.user_id1 = curUser;
+            curUser = 3;
+            friend.User1 = db.Users.Find(curUser);
+
+            IQueryable<User> friendQuery =
+                from user in db.Users
+                where user.UserName == friend.User2.UserName
+                select user;
+
+            friend.User2 = friendQuery.Single();
+
+            IQueryable<FriendStatus> statQuery =
+                from stat in db.FriendStatuses
+                where stat.Status == "requested"
+                select stat;
+            friend.Status = statQuery.Single();
+            //if (ModelState.IsValid)
+            //{
                 db.Friends.Add(friend);
                 db.SaveChanges();
                 return RedirectToAction("Index");
-            }
+            //}
+            //else Console.Write("bleh");
 
-            return View(friend);
+            //return View(friend);
         }
 
         //
@@ -78,22 +96,37 @@ namespace PYPProfileDotNet.Controllers
                 Console.Write("not found");
                 return HttpNotFound();
             }
-            return View(friend);
+
+            IQueryable<FriendResult> friendQuery =
+                from frnd in db.Friends
+                join user in db.Users on frnd.User2.UserId equals user.UserId //gives name of second user
+                where frnd.id == id
+                select new FriendResult { id = frnd.id, friendStatus = frnd.Status.Status, friendName = user.Name };
+
+            IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
+            ViewBag.statTypes = statTypes;
+            ViewBag.StatusId = friend.Status.StatusId;
+            return View(friendQuery.Single());
         }
 
         //
         // POST: /Friend/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(Friend friend)
+        public ActionResult Edit(FriendResult friendRes)
         {
-            if (ModelState.IsValid)
-            {
-                db.Entry(friend).State = EntityState.Modified;
+            //int test = friendRes.friendStatus;
+            string test2 = friendRes.friendStatus;
+            //if (ModelState.IsValid)
+            //{
+
+            Friend friend = db.Friends.Find(friendRes.id);
+            friend.Status = db.FriendStatuses.Find(friendRes.friendStatusId);
+            db.Entry(friend).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
-            }
-            return View(friend);
+            //}
+               // return View(friendRes);
         }
 
         //

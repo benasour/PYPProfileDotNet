@@ -166,6 +166,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\FriendController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LeaderboardController.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -182,7 +183,10 @@
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Friend.cs" />
     <Compile Include="Models\FriendStatus.cs" />
+    <Compile Include="Models\Game.cs" />
+    <Compile Include="Models\History.cs" />
     <Compile Include="Models\PYPContext.cs" />
+    <Compile Include="Models\SampleData.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -304,6 +308,11 @@
     <Content Include="Views\Friend\Create.cshtml" />
     <Content Include="Views\Friend\Edit.cshtml" />
     <Content Include="Views\Friend\Delete.cshtml" />
+    <Content Include="Views\Leaderboard\Create.cshtml" />
+    <Content Include="Views\Leaderboard\Delete.cshtml" />
+    <Content Include="Views\Leaderboard\Details.cshtml" />
+    <Content Include="Views\Leaderboard\Edit.cshtml" />
+    <Content Include="Views\Leaderboard\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

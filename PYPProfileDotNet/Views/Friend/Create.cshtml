@@ -13,15 +13,12 @@
         <legend>Friend</legend>
 
         <div class="editor-label">
-            @Html.DisplayNameFor(model => model.user_id2)
-            @Html.DisplayNameFor(model => model.status_id)
+            @Html.DisplayNameFor(model => model.User2.UserName)
         </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.user_id2)
-            @Html.ValidationMessageFor(model => model.status_id)
+        <div class="editor-field"> 
 
-            @Html.EditorFor(model => model.status_id)
-            @Html.ValidationMessageFor(model => model.status_id)
+            @Html.EditorFor(model => model.User2.UserName)
+            @Html.ValidationMessageFor(model => model.User2.UserName)
         </div>
 
         <p>

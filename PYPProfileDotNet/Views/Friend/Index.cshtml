@@ -6,7 +6,7 @@
 <h2>Index</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Add Friend", "Create")
 </p>
 <table>
     <tr>
@@ -29,9 +29,9 @@
             @Html.DisplayFor(modelItem => item.friendStatus)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.tempID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.tempID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.tempID })
+            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.id })
         </td>
     </tr>
 }

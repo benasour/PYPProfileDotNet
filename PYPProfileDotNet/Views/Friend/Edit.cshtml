@@ -1,4 +1,4 @@
-﻿@model PYPProfileDotNet.Models.Friend
+﻿@model PYPProfileDotNet.Models.FriendResult
 
 @{
     ViewBag.Title = "Edit";
@@ -12,16 +12,27 @@
     <fieldset>
         <legend>Friend</legend>
 
-        @Html.HiddenFor(model => model.id)
-        @Html.HiddenFor(model => model.user_id1)
-        @Html.HiddenFor(model => model.user_id2)
-
-        <div class="editor-label"> Status:
-            @Html.LabelFor(model => model.status_id)
+        @Html.HiddenFor(model => model.friendName)
+       
+        <div class="editor-label"> 
+            User: @Html.Label(Model.friendName)
+            
+            Status:
         </div>
+
         <div class="editor-field">
-            @Html.EditorFor(model => model.status_id)
-            @Html.ValidationMessageFor(model => model.status_id)
+            <select id="friendStatusId" name="friendStatusId">
+                @foreach ( PYPProfileDotNet.Models.FriendStatus stat in @ViewBag.statTypes ) {
+                    if (stat.StatusId == @ViewBag.StatusId)
+                    {
+                        <option value="@stat.StatusId" selected="selected">@stat.Status</option>
+                    }
+                    else {
+                        <option value="@stat.StatusId">@stat.Status</option>
+                    }
+                }
+            </select >
+            @Html.ValidationMessageFor(model => model.friendStatusId)
         </div>
 
         <p>

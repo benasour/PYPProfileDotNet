@@ -55,6 +55,8 @@ namespace PYPProfileDotNet.Controllers
                         System.Web.HttpContext.Current.User = userPrincipal;
                         Thread.CurrentPrincipal = userPrincipal;
 
+                        HttpContext.Session["userId"] = user.UserId;
+
                         return RedirectToLocal(returnUrl);
                     }
                 }

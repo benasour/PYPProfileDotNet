@@ -1,4 +1,3 @@
-﻿﻿using System.Collections.Generic;
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
@@ -22,7 +21,6 @@ namespace PYPProfileDotNet.Models
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        public virtual ICollection<Friend> Friends { get; set; }
 
         [Required]
         public string Salt { get; set; }

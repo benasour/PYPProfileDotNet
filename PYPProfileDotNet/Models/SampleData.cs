@@ -40,7 +40,7 @@ namespace PYPProfileDotNet.Models
             };
             friendStatuses.ForEach(s => context.FriendStatuses.Add(s));
 
-            new List<Friend>
+            new List<Friend> 
             {
                 new Friend { User1 = users.Single(u => u.UserId == 1), User2 = users.Single(u => u.UserId == 2), Status = friendStatuses.Single(s => s.StatusId == 1) }, // Andy is friends with Ben
                 new Friend { User1 = users.Single(u => u.UserId == 1), User2 = users.Single(u => u.UserId == 3), Status = friendStatuses.Single(s => s.StatusId == 1) }, // Andy is friends with Paul
