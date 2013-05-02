@@ -49,7 +49,7 @@ namespace PYPProfileDotNet.Controllers
                     if (user != null && Crypto.VerifyHashedPassword(user.Password, model.Password + user.Salt))
                     {
                         // Credentials Passed Login the User
-                        FormsAuthentication.SetAuthCookie(user.Name, model.RememberMe);
+                        FormsAuthentication.SetAuthCookie(user.UserName, model.RememberMe);
                         FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(Response.Cookies.Get(FormsAuthentication.FormsCookieName).Value);
                         GenericPrincipal userPrincipal = new GenericPrincipal(new FormsIdentity(ticket), null);
                         System.Web.HttpContext.Current.User = userPrincipal;
@@ -113,7 +113,7 @@ namespace PYPProfileDotNet.Controllers
                     db.SaveChanges();
 
                     // Login the new user
-                    FormsAuthentication.SetAuthCookie(user.Name, false);
+                    FormsAuthentication.SetAuthCookie(user.UserName, false);
                     FormsAuthenticationTicket ticket = FormsAuthentication.Decrypt(Response.Cookies.Get(FormsAuthentication.FormsCookieName).Value);
                     GenericPrincipal userPrincipal = new GenericPrincipal(new FormsIdentity(ticket), null);
                     System.Web.HttpContext.Current.User = userPrincipal;
@@ -205,30 +205,6 @@ namespace PYPProfileDotNet.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
-        }
-
-        //
-        // GET: /Account/RecentGames/
-        public ActionResult RecentGames(int user_id)
-        {
-            using ( PYPContext db = new PYPContext() )
-            {
-                IEnumerable<Game> gameQuery =
-                    from games in db.Games
-                    select games;
-
-                ViewBag.Games = gameQuery.ToList();
-
-                ViewBag.User = db.Users.Single(u => u.UserId == user_id);
-
-                IEnumerable<History> query =
-                    from history in db.History
-                    where history.User.UserId == user_id
-                    orderby history.Date descending
-                    select history;
-
-                return View(query.ToList());
-            }
         }
 
         [AllowAnonymous]

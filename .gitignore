@@ -5,11 +5,8 @@ App_Data/
 *.user
 
 packages/
-.nuget/
 
-themes/
 !Site.css
-Scripts/
 #!Site.js
 
 !.gitignore
