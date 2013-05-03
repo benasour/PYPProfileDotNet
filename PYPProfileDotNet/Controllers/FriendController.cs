@@ -46,25 +46,27 @@ namespace PYPProfileDotNet.Controllers
         //
         // GET: /Friend/Create
         //adds friend
-        public ActionResult Create()
+        public ActionResult Create(int id = 0)
         {
+            User user = db.Users.Find(id);
             IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
             ViewBag.statTypes = statTypes;
-            return View();
+            return View(user);
         }
 
         //
         // POST: /Friend/Create
 
         [HttpPost]
-        public ActionResult Create(Friend friend)
+        public ActionResult Create(User user2)
         {
+            Friend friend = new Friend();
             curUser = User.Identity.Name;
             friend.User1 = db.Users.Single( f => f.UserName == curUser);
 
             IQueryable<User> friendQuery =
                 from user in db.Users
-                where user.UserName == friend.User2.UserName
+                where user.UserName == user2.UserName
                 select user;
 
             friend.User2 = friendQuery.Single();

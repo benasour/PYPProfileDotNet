@@ -1,4 +1,4 @@
-﻿@model PYPProfileDotNet.Models.Friend
+﻿@model PYPProfileDotNet.Models.User
 
 @{
     ViewBag.Title = "Create";
@@ -13,12 +13,12 @@
         <legend>Friend</legend>
 
         <div class="editor-label">
-            @Html.DisplayNameFor(model => model.User2.UserName)
+            @Html.DisplayNameFor(model => model.UserName)
         </div>
         <div class="editor-field"> 
 
-            @Html.EditorFor(model => model.User2.UserName)
-            @Html.ValidationMessageFor(model => model.User2.UserName)
+            @Html.EditorFor(model => model.UserName)
+            @Html.ValidationMessageFor(model => model.UserName)
         </div>
 
         <p>
