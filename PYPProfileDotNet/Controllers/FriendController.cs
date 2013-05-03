@@ -50,7 +50,9 @@ namespace PYPProfileDotNet.Controllers
         {
             User user = db.Users.Find(id);
             IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
+            IEnumerable<User> userList = db.Users.ToList().OrderBy(u => u.UserName);
             ViewBag.statTypes = statTypes;
+            ViewBag.userList = userList;
             return View(user);
         }
 
