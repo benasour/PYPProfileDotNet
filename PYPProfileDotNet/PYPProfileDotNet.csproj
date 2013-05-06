@@ -20,6 +20,8 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -164,6 +166,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\Api\HistoryController.cs" />
     <Compile Include="Controllers\GameController.cs" />
+    <Compile Include="Controllers\FriendController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LeaderboardController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
@@ -299,6 +302,16 @@
     <Content Include="Views\Game\Index.cshtml" />
     <Content Include="Views\Game\Horse.cshtml" />
     <Content Include="Views\Game\Coin.cshtml" />
+    <Content Include="Views\Friend\Index.cshtml" />
+    <Content Include="Views\Friend\Details.cshtml" />
+    <Content Include="Views\Friend\Create.cshtml" />
+    <Content Include="Views\Friend\Edit.cshtml" />
+    <Content Include="Views\Friend\Delete.cshtml" />
+    <Content Include="Views\Leaderboard\Create.cshtml" />
+    <Content Include="Views\Leaderboard\Delete.cshtml" />
+    <Content Include="Views\Leaderboard\Details.cshtml" />
+    <Content Include="Views\Leaderboard\Edit.cshtml" />
+    <Content Include="Views\Leaderboard\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -323,7 +336,7 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>49442</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:62438/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
@@ -335,6 +348,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

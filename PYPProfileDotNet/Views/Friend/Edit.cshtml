@@ -1,0 +1,50 @@
+﻿@model PYPProfileDotNet.Models.FriendResult
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Friend</legend>
+
+        @Html.HiddenFor(model => model.friendName)
+       
+        <div class="editor-label"> 
+            User: @Html.Label(Model.friendName)
+            
+            Status:
+        </div>
+
+        <div class="editor-field">
+            <select id="friendStatusId" name="friendStatusId">
+                @foreach ( PYPProfileDotNet.Models.FriendStatus stat in @ViewBag.statTypes ) {
+                    if (stat.StatusId == @ViewBag.StatusId)
+                    {
+                        <option value="@stat.StatusId" selected="selected">@stat.Status</option>
+                    }
+                    else {
+                        <option value="@stat.StatusId">@stat.Status</option>
+                    }
+                }
+            </select >
+            @Html.ValidationMessageFor(model => model.friendStatusId)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

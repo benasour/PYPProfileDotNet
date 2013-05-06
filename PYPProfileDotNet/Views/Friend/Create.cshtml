@@ -1,0 +1,67 @@
+﻿@model PYPProfileDotNet.Models.User
+
+@{
+    ViewBag.Title = "Create";
+}
+
+
+<script type="text/javascript">
+    function selectName() {
+        var selection = document.getElementById("nameList");
+        //window.location = '';
+        var nameInput = document.getElementById("UserName");
+        nameInput.value = selection.options[selection.selectedIndex].text;
+        createPopup(nameInput.value);
+    }
+</script>
+
+
+<h2>Create</h2>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Friend</legend>
+        <table>
+            <tr>
+                <td>
+                    <div class="editor-label">
+                        @Html.DisplayNameFor(model => model.UserName)
+                    </div>
+                    <div class="editor-field"> 
+
+                        @Html.EditorFor(model => model.UserName)
+                        @Html.ValidationMessageFor(model => model.UserName)
+                    </div>
+                </td>
+                <td>
+                    <div id="namesList">
+                        <select id="nameList" name="nameList" multiple="multiple" onchange="selectName()">
+                            @foreach ( PYPProfileDotNet.Models.User user in @ViewBag.userList ) {
+                                if (Model != null && Model.UserName != null && Model.UserName == user.UserName)
+                                {
+                                    <option value="@user.UserId" selected="selected">@user.UserName</option>
+                                }
+                                else {
+                                    <option value="@user.UserId">@user.UserName</option>
+                                }
+                            }
+                        </select >
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

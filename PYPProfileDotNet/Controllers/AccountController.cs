@@ -54,6 +54,8 @@ namespace PYPProfileDotNet.Controllers
                         System.Web.HttpContext.Current.User = userPrincipal;
                         Thread.CurrentPrincipal = userPrincipal;
 
+                        HttpContext.Session["userId"] = user.UserId;
+
                         return RedirectToLocal(returnUrl);
                     }
                 }
@@ -203,6 +205,7 @@ namespace PYPProfileDotNet.Controllers
         //    // If we got this far, something failed, redisplay form
         //    return View(model);
         //}
+
 
         [AllowAnonymous]
         [OutputCache(Location = OutputCacheLocation.None, NoStore = true)]
