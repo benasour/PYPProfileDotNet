@@ -23,9 +23,10 @@ namespace PYPProfileDotNet.Controllers
             IQueryable<FriendResult> friendQuery =
                 from friend in db.Friends
                 join user in db.Users on friend.User2.UserId equals user.UserId //gives name of second user
-                where friend.User1.UserName == curUser
-                select new FriendResult { id = friend.id, friendStatus = friend.Status.Status, friendName = user.Name };
-            
+                where friend.User1.UserName == curUser || friend.User2.UserName == curUser
+                select new FriendResult { id = friend.id, friendStatus = friend.Status.Status, friendName = friend.User2.UserName, userName = friend.User1.UserName };
+
+            ViewBag.name = User.Identity.Name;
             return View(friendQuery.ToList()); 
         }
 
@@ -105,9 +106,10 @@ namespace PYPProfileDotNet.Controllers
                 from frnd in db.Friends
                 join user in db.Users on frnd.User2.UserId equals user.UserId //gives name of second user
                 where frnd.id == id
-                select new FriendResult { id = frnd.id, friendStatus = frnd.Status.Status, friendName = user.Name };
+                select new FriendResult { id = frnd.id, friendStatus = frnd.Status.Status, friendName = frnd.User2.UserName, userName = frnd.User1.UserName };
 
             IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
+            ViewBag.name = User.Identity.Name;
             ViewBag.statTypes = statTypes;
             ViewBag.StatusId = friend.Status.StatusId;
             return View(friendQuery.Single());

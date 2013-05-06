@@ -6,14 +6,16 @@
 
 <h2>Edit</h2>
 
-@using (Html.BeginForm()) {
+@using (Html.BeginForm())
+{
     @Html.ValidationSummary(true)
 
     <fieldset>
         <legend>Friend</legend>
 
         @Html.HiddenFor(model => model.friendName)
-       
+        @Html.HiddenFor(model => model.userName)
+
         <div class="editor-label"> 
             User: @Html.Label(Model.friendName)
             
@@ -27,8 +29,8 @@
                     {
                         <option value="@stat.StatusId" selected="selected">@stat.Status</option>
                     }
-                    else {
-                        <option value="@stat.StatusId">@stat.Status</option>
+                    else { 
+                        <option value="@stat.StatusId" @(( (stat.StatusId==1||stat.StatusId==4)&&(  Model.userName==(string)ViewBag.name) )?"disabled=disabled":"")>@stat.Status</option>
                     }
                 }
             </select >
