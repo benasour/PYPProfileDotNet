@@ -128,20 +128,6 @@ namespace PYPProfileDotNet.Controllers
         }
 
 
-        //
-        // GET: /Account/Manage
-
-        public ActionResult Manage(ManageMessageId? message)
-        {
-            ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                : message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."
-                : "";
-            ViewBag.HasLocalPassword = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
-            ViewBag.ReturnUrl = Url.Action("Manage");
-            return View();
-        }
 
         [AllowAnonymous]
         [OutputCache(Location = OutputCacheLocation.None, NoStore = true)]
@@ -168,29 +154,6 @@ namespace PYPProfileDotNet.Controllers
             }
         }
 
-        public enum ManageMessageId
-        {
-            ChangePasswordSuccess,
-            SetPasswordSuccess,
-            RemoveLoginSuccess,
-        }
-
-        internal class ExternalLoginResult : ActionResult
-        {
-            public ExternalLoginResult(string provider, string returnUrl)
-            {
-                Provider = provider;
-                ReturnUrl = returnUrl;
-            }
-
-            public string Provider { get; private set; }
-            public string ReturnUrl { get; private set; }
-
-            public override void ExecuteResult(ControllerContext context)
-            {
-                OAuthWebSecurity.RequestAuthentication(Provider, ReturnUrl);
-            }
-        }
 
         private static string ErrorCodeToString(MembershipCreateStatus createStatus)
         {

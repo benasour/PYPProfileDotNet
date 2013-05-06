@@ -7,10 +7,13 @@ namespace PYPProfileDotNet.Models
     {
         [Key]
         public int id { get; set; }
+
         public Game Game { get; set; }
         public User User { get; set; }
+
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
+
         public int Score { get; set; }
     }
 
@@ -18,6 +21,13 @@ namespace PYPProfileDotNet.Models
     public class Leaderboard
     {
         public User User { get; set; }
+        public int Score { get; set; }
+    }
+
+    public class CompletedGame
+    {
+        public string GameName { get; set; }
+        public string UserName { get; set; }
         public int Score { get; set; }
     }
     #endregion
