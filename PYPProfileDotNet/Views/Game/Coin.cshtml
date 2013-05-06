@@ -1,0 +1,24 @@
+﻿@model IEnumerable<SelectListItem>
+
+@{
+    ViewBag.Title = "Coin";
+}
+
+@using (Html.BeginForm())
+{
+    <fieldset>
+        <ol>
+            <li>
+                @Html.Label("bet", "Bet")
+                @Html.TextBox("bet")
+            </li>
+            <li>
+                @Html.Label("side", "Side")
+                @Html.DropDownList("side", Model)
+            </li>
+        </ol>
+
+        @Html.Hidden("name", User.Identity.Name)
+        <input type="submit" onclick="this.form.action = @ViewBag.FormAction"; value="Join" />
+    </fieldset>
+}
