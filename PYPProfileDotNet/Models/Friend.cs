@@ -21,6 +21,7 @@ namespace PYPProfileDotNet.Models
         public int id { get; set; }
         public string friendStatus { get; set; }
         public int friendStatusId { get; set; }
+        public string userName { get; set; }
         public string friendName { get; set; }
     }
 }

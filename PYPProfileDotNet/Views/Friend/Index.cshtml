@@ -8,6 +8,7 @@
 <p>
     @Html.ActionLink("Add Friend", "Create")
 </p>
+
 <table>
     <tr>
         <th>
@@ -23,9 +24,22 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.friendName)
+            @{  //if curUser is the friendName, display user1 instead
+                if (item.friendName != (string)ViewBag.name)
+                {
+                    
+                    @Html.Label(""+item.friendName);
+                }
+                else
+                {
+                    
+                    @Html.Label(""+item.userName);
+                }
+            }
         </td>
         <td>
+            @Html.Hidden(item.friendStatus)
+            @Html.Display(item.friendStatus)
             @Html.DisplayFor(modelItem => item.friendStatus)
         </td>
         <td>
