@@ -30,6 +30,7 @@ namespace PYPProfileDotNet.Controllers
 
             User thisUser = db.Users.Single(u => u.UserId == user_id);
             ViewBag.User = thisUser;
+            ViewBag.isUser = (thisUser.UserName == User.Identity.Name);
 
             // Grab all Friend entries where the desired User is Friend.User1 and Friend.User2 and the friendship is "accepted"
             var thisUserFriend1Entries =

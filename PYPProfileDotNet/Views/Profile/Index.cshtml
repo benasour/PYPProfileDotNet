@@ -5,7 +5,10 @@
 }
 
 <h1>@ViewBag.User.UserName</h1>
-@Html.ActionLink("Add as friend", "../Friend/Create/", new { id = ViewBag.User.UserId })
+@if (!ViewBag.isUser) 
+{ 
+    @Html.ActionLink("Add as friend", "../Friend/Create/", new { id = ViewBag.User.UserId }); 
+}
 
 <table>
     <tr>
