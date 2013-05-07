@@ -39,6 +39,7 @@
                     <div id="namesList">
                         <select id="nameList" name="nameList" multiple="multiple" onchange="selectName()">
                             @foreach ( PYPProfileDotNet.Models.User user in @ViewBag.userList ) {
+                              if (user.UserName != (string)ViewBag.name){  
                                 if (Model != null && Model.UserName != null && Model.UserName == user.UserName)
                                 {
                                     <option value="@user.UserId" selected="selected">@user.UserName</option>
@@ -46,6 +47,7 @@
                                 else {
                                     <option value="@user.UserId">@user.UserName</option>
                                 }
+                              }//end if (curUser)
                             }
                         </select >
                     </div>

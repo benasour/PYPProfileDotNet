@@ -13,6 +13,8 @@ namespace PYPProfileDotNet.Models
         public int id { get; set; }
         public virtual User User1 { get; set; }
         public virtual User User2 { get; set; }
+
+        [Display(Name = "Friend Status")]
         public virtual FriendStatus Status { get; set; }
     }
 
@@ -21,7 +23,11 @@ namespace PYPProfileDotNet.Models
         public int id { get; set; }
         public string friendStatus { get; set; }
         public int friendStatusId { get; set; }
+
+        [Display(Name = "User Name")]
         public string userName { get; set; }
+
+        [Display(Name = "Friend Name")]
         public string friendName { get; set; }
     }
 }

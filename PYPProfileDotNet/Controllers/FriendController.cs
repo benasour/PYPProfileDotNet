@@ -32,7 +32,6 @@ namespace PYPProfileDotNet.Controllers
 
         //
         // GET: /Friend/Details/5
-        //view friend status? i guess?
         public ActionResult Details(int id = 0)
         {
             Friend friend = db.Friends.Find(id);
@@ -52,6 +51,7 @@ namespace PYPProfileDotNet.Controllers
             User user = db.Users.Find(id);
             IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
             IEnumerable<User> userList = db.Users.ToList().OrderBy(u => u.UserName);
+            ViewBag.name = User.Identity.Name;
             ViewBag.statTypes = statTypes;
             ViewBag.userList = userList;
             return View(user);
@@ -109,6 +109,10 @@ namespace PYPProfileDotNet.Controllers
                 select new FriendResult { id = frnd.id, friendStatus = frnd.Status.Status, friendName = frnd.User2.UserName, userName = frnd.User1.UserName };
 
             IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
+            ViewBag.accepted = db.FriendStatuses.Single(s => s.Status == "accepted");
+            ViewBag.declined = db.FriendStatuses.Single(s => s.Status == "declined");
+            ViewBag.defriended = db.FriendStatuses.Single(s => s.Status == "defriended");
+            ViewBag.requested = db.FriendStatuses.Single(s => s.Status == "requested");
             ViewBag.name = User.Identity.Name;
             ViewBag.statTypes = statTypes;
             ViewBag.StatusId = friend.Status.StatusId;

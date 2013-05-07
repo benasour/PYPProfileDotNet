@@ -17,20 +17,35 @@
         @Html.HiddenFor(model => model.userName)
 
         <div class="editor-label"> 
-            User: @Html.Label(Model.friendName)
-            
-            Status:
+            User: @{if (Model.friendName == (string)ViewBag.name)
+                    {
+                        @Html.Label(Model.userName);
+                    }
+                    else
+                    {
+                        @Html.Label(Model.friendName);
+                    }
+                  }
         </div>
 
         <div class="editor-field">
-            <select id="friendStatusId" name="friendStatusId">
+            Status:  <select id="friendStatusId" name="friendStatusId">
                 @foreach ( PYPProfileDotNet.Models.FriendStatus stat in @ViewBag.statTypes ) {
                     if (stat.StatusId == @ViewBag.StatusId)
                     {
                         <option value="@stat.StatusId" selected="selected">@stat.Status</option>
                     }
                     else { 
-                        <option value="@stat.StatusId" @(( (stat.StatusId==1||stat.StatusId==4)&&(  Model.userName==(string)ViewBag.name) )?"disabled=disabled":"")>@stat.Status</option>
+                        <option value="@stat.StatusId" 
+                            @(( (stat.Status==ViewBag.accepted.Status||stat.Status==ViewBag.declined.Status)
+                                &&(  Model.userName==(string)ViewBag.name) 
+                                ||( (ViewBag.StatusId==ViewBag.declined.StatusId)
+                                    &&(stat.StatusId==ViewBag.accepted.StatusId || stat.StatusId==ViewBag.defriended.StatusId) )
+                                ||( (ViewBag.StatusId==ViewBag.accepted.StatusId)
+                                    &&(stat.StatusId==ViewBag.requested.StatusId || stat.StatusId==ViewBag.declined.StatusId) )
+                                
+                                )?"disabled=disabled":""
+                            )>@stat.Status</option>
                     }
                 }
             </select >
