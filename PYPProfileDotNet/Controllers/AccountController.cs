@@ -127,7 +127,21 @@ namespace PYPProfileDotNet.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public ActionResult Manage()
+        {
+            UserAccount account = new UserAccount();
 
+            using (PYPContext db = new PYPContext())
+            {
+                User user = db.Users.SingleOrDefault(u => u.UserName == User.Identity.Name);
+                account.Name = user.Name;
+                account.UserName = user.UserName;
+                account.Email = user.Email;
+            }
+
+            return View(account);
+        }
 
         [AllowAnonymous]
         [OutputCache(Location = OutputCacheLocation.None, NoStore = true)]

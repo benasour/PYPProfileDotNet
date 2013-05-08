@@ -1,0 +1,15 @@
+﻿@model PYPProfileDotNet.Models.UserAccount
+
+@{
+    ViewBag.Title = "Manage";
+}
+
+<h2 style="margin-bottom: 10px">Account Details</h2>
+
+<fieldset>
+    <div>@Html.DisplayNameFor(model => model.Name):&nbsp;@Html.DisplayFor(model => model.Name)</div>
+
+    <div>@Html.DisplayNameFor(model => model.UserName):&nbsp;@Html.DisplayFor(model => model.UserName)</div>
+
+    <div>@Html.DisplayNameFor(model => model.Email):&nbsp;@Html.DisplayFor(model => model.Email)</div>
+</fieldset>

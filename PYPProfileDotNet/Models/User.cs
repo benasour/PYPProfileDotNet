@@ -65,6 +65,18 @@ namespace PYPProfileDotNet.Models
         [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
     }
+
+    public class UserAccount
+    {
+        public string Name { get; set; }
+
+        [Display(Name = "User Name")]
+        public string UserName { get; set; }
+
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; }
+
+    }
     #endregion
 
 }
