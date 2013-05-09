@@ -295,7 +295,6 @@
     <Content Include="Views\Game\Horse.cshtml" />
     <Content Include="Views\Game\Coin.cshtml" />
     <Content Include="Views\Friend\Index.cshtml" />
-    <Content Include="Views\Friend\Details.cshtml" />
     <Content Include="Views\Friend\Create.cshtml" />
     <Content Include="Views\Friend\Edit.cshtml" />
     <Content Include="Views\Friend\Delete.cshtml" />

@@ -31,19 +31,6 @@ namespace PYPProfileDotNet.Controllers
         }
 
         //
-        // GET: /Friend/Details/5
-        public ActionResult Details(int id = 0)
-        {
-            Friend friend = db.Friends.Find(id);
-            var user1 = friend.User1;
-            if (friend == null)
-            {
-                return HttpNotFound();
-            }
-            return View(friend);
-        }
-
-        //
         // GET: /Friend/Create
         //adds friend
         public ActionResult Create(int id = 0)
@@ -63,8 +50,21 @@ namespace PYPProfileDotNet.Controllers
         [HttpPost]
         public ActionResult Create(User user2)
         {
-            Friend friend = new Friend();
             curUser = User.Identity.Name;
+            //first check to see if they are an existing friend
+            IQueryable<Friend> fq =
+                from frnd in db.Friends
+                where (frnd.User1.UserName == curUser && user2.UserName == frnd.User2.UserName)
+                    || (frnd.User2.UserName == curUser && user2.UserName == frnd.User1.UserName)
+                select frnd;
+            if (fq.Count() != 0) //nonzero, so this relationship exists
+            {
+                ViewBag.message = "You already have a friend relation with this user.";
+                return View("Error");
+            }
+
+            //They aren't, so proeed with the request
+            Friend friend = new Friend();
             friend.User1 = db.Users.Single( f => f.UserName == curUser);
 
             IQueryable<User> friendQuery =
@@ -108,12 +108,24 @@ namespace PYPProfileDotNet.Controllers
                 where frnd.id == id
                 select new FriendResult { id = frnd.id, friendStatus = frnd.Status.Status, friendName = frnd.User2.UserName, userName = frnd.User1.UserName };
 
+            //make sure this user is actually part of this friendship before proceeding
+            string curName = User.Identity.Name;
+            bool isFriend = false;
+            foreach (FriendResult fr in friendQuery)
+                if (curName == fr.userName || curName == fr.friendName)
+                    isFriend = true;
+            if (!isFriend)
+            {
+                ViewBag.message = "You are trying to edit a friendship that you aren't a part of.";
+                return View("Error"); 
+            }
+
             IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
             ViewBag.accepted = db.FriendStatuses.Single(s => s.Status == "accepted");
             ViewBag.declined = db.FriendStatuses.Single(s => s.Status == "declined");
             ViewBag.defriended = db.FriendStatuses.Single(s => s.Status == "defriended");
             ViewBag.requested = db.FriendStatuses.Single(s => s.Status == "requested");
-            ViewBag.name = User.Identity.Name;
+            ViewBag.name = curName;
             ViewBag.statTypes = statTypes;
             ViewBag.StatusId = friend.Status.StatusId;
             return View(friendQuery.Single());
