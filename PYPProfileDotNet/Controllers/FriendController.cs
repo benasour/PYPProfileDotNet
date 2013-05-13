@@ -42,7 +42,7 @@ namespace PYPProfileDotNet.Controllers
             ViewBag.statTypes = statTypes;
             ViewBag.userList = userList;
             return View(user);
-        }
+        } 
 
         //
         // POST: /Friend/Create
@@ -54,8 +54,8 @@ namespace PYPProfileDotNet.Controllers
             //first check to see if they are an existing friend
             IQueryable<Friend> fq =
                 from frnd in db.Friends
-                where (frnd.User1.UserName == curUser && user2.UserName == frnd.User2.UserName)
-                    || (frnd.User2.UserName == curUser && user2.UserName == frnd.User1.UserName)
+                where (frnd.User1.UserName == curUser && user2.UserId == frnd.User2.UserId)
+                    || (frnd.User2.UserName == curUser && user2.UserId == frnd.User1.UserId)
                 select frnd;
             if (fq.Count() != 0) //nonzero, so this relationship exists
             {
@@ -69,7 +69,7 @@ namespace PYPProfileDotNet.Controllers
 
             IQueryable<User> friendQuery =
                 from user in db.Users
-                where user.UserName == user2.UserName
+                where user.UserId == user2.UserId
                 select user;
 
             friend.User2 = friendQuery.Single();
@@ -156,6 +156,7 @@ namespace PYPProfileDotNet.Controllers
         //remove friend
         public ActionResult Delete(int id = 0)
         {
+            ViewBag.name = User.Identity.Name;
             Friend friend = db.Friends.Find(id);
             if (friend == null)
             {
