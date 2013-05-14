@@ -9,6 +9,7 @@ using PYPProfileDotNet.Models;
 
 namespace PYPProfileDotNet.Controllers
 {
+    [Authorize]
     public class FriendController : Controller
     {
         private PYPContext db = new PYPContext();
