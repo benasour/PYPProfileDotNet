@@ -25,6 +25,7 @@ namespace PYPProfileDotNet.Controllers
                 from friend in db.Friends
                 join user in db.Users on friend.User2.UserId equals user.UserId //gives name of second user
                 where friend.User1.UserName == curUser || friend.User2.UserName == curUser
+                orderby friend.Status.StatusId descending, friend.User2.UserName ascending
                 select new FriendResult { id = friend.id, friendStatus = friend.Status.Status, friendName = friend.User2.UserName, userName = friend.User1.UserName };
 
             ViewBag.name = User.Identity.Name;
@@ -57,11 +58,18 @@ namespace PYPProfileDotNet.Controllers
                 from frnd in db.Friends
                 where (frnd.User1.UserName == curUser && user2.UserId == frnd.User2.UserId)
                     || (frnd.User2.UserName == curUser && user2.UserId == frnd.User1.UserId)
-                select frnd;
-            if (fq.Count() != 0) //nonzero, so this relationship exists
+                select frnd; 
+
+            foreach (Friend frnd in fq.ToList())
             {
-                ViewBag.message = "You already have a friend relation with this user.";
-                return View("Error");
+                if (frnd.Status != null)
+                {
+                    if (frnd.Status.Status == "blocked" || frnd.Status.Status == "accepted" || frnd.Status.Status == "requested") //nonzero, so this relationship exists
+                    {
+                        ViewBag.message = "You already have a friend relation with this user.";
+                        return View("Error");
+                    }
+                }
             }
 
             //They aren't, so proeed with the request
@@ -91,66 +99,75 @@ namespace PYPProfileDotNet.Controllers
             //return View(friend);
         }
 
-        //
-        // GET: /Friend/Edit/5
-        //change settings relating to friend
-        public ActionResult Edit(int id=0)
+
+
+        public ActionResult CancelRequest(int id = 0)
+        {
+
+            Friend friend = db.Friends.Find(id);
+            db.Friends.Remove(friend);
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult AcceptRequest(int id = 0)
         {
             Friend friend = db.Friends.Find(id);
-            if (friend == null)
-            {
-                Console.Write("not found");
-                return HttpNotFound();
-            }
-
-            IQueryable<FriendResult> friendQuery =
-                from frnd in db.Friends
-                join user in db.Users on frnd.User2.UserId equals user.UserId //gives name of second user
-                where frnd.id == id
-                select new FriendResult { id = frnd.id, friendStatus = frnd.Status.Status, friendName = frnd.User2.UserName, userName = frnd.User1.UserName };
-
-            //make sure this user is actually part of this friendship before proceeding
-            string curName = User.Identity.Name;
-            bool isFriend = false;
-            foreach (FriendResult fr in friendQuery)
-                if (curName == fr.userName || curName == fr.friendName)
-                    isFriend = true;
-            if (!isFriend)
-            {
-                ViewBag.message = "You are trying to edit a friendship that you aren't a part of.";
-                return View("Error"); 
-            }
-
-            IEnumerable<FriendStatus> statTypes = db.FriendStatuses.ToList();
-            ViewBag.accepted = db.FriendStatuses.Single(s => s.Status == "accepted");
-            ViewBag.declined = db.FriendStatuses.Single(s => s.Status == "declined");
-            ViewBag.defriended = db.FriendStatuses.Single(s => s.Status == "defriended");
-            ViewBag.requested = db.FriendStatuses.Single(s => s.Status == "requested");
-            ViewBag.name = curName;
-            ViewBag.statTypes = statTypes;
-            ViewBag.StatusId = friend.Status.StatusId;
-            return View(friendQuery.Single());
-        }
-
-        //
-        // POST: /Friend/Edit/5
-
-        [HttpPost]
-        public ActionResult Edit(FriendResult friendRes)
-        {
-            //int test = friendRes.friendStatus;
-            string test2 = friendRes.friendStatus;
-            //if (ModelState.IsValid)
-            //{
-
-            Friend friend = db.Friends.Find(friendRes.id);
-            friend.Status = db.FriendStatuses.Find(friendRes.friendStatusId);
+            friend.Status = db.FriendStatuses.First(f => f.Status == "accepted");
             db.Entry(friend).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            //}
-               // return View(friendRes);
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
+
+        public ActionResult DeclineRequest(int id = 0)
+        {
+            Friend friend = db.Friends.Find(id);
+            friend.Status = db.FriendStatuses.First(f => f.Status == "declined");
+            db.Entry(friend).State = EntityState.Modified;
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult DeFriend(int id = 0)
+        {
+            Friend friend = db.Friends.Find(id);
+            friend.Status = db.FriendStatuses.First(f => f.Status == "defriended");
+            db.Entry(friend).State = EntityState.Modified;
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        public ActionResult Unblock(int id = 0)
+        {
+            Friend friend = db.Friends.Find(id);
+            db.Friends.Remove(friend);
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult Block(int id = 0)
+        {
+            Friend friend = db.Friends.Find(id);
+            friend.Status = db.FriendStatuses.First(f => f.Status == "blocked");
+            db.Entry(friend).State = EntityState.Modified;
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         //
         // GET: /Friend/Delete/5

@@ -24,27 +24,61 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @{  //if curUser is the friendName, display user1 instead
+            @{if (item.friendStatus != "defriended" && item.friendStatus != "declined")
+              {  
+                //if curUser is the friendName, display user1 instead
                 if (item.friendName != (string)ViewBag.name)
                 {
                     
                     @Html.Label(""+item.friendName);
                 }
-                else
+                else if (item.friendStatus != "blocked")
                 {
-                    
                     @Html.Label(""+item.userName);
                 }
+              }
             }
         </td>
         <td>
-            @Html.Hidden(item.friendStatus)
-            @Html.Display(item.friendStatus)
-            @Html.DisplayFor(modelItem => item.friendStatus)
+            @{if ( (item.friendStatus != "defriended" && item.friendStatus != "declined") && !(item.friendStatus == "blocked" && item.friendName == ViewBag.name))
+              {
+                @Html.Hidden(item.friendStatus)
+                @Html.Display(item.friendStatus)
+                @Html.DisplayFor(modelItem => item.friendStatus)
+              }
+            }
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
+            @{if (item.friendStatus == "requested")
+              {
+                  if (item.userName == (string)ViewBag.name) //user1 is this user (curUser sent request)
+                  {
+                    @Html.ActionLink("Cancel Request", "CancelRequest", new { id = item.id });
+                  }
+                  else
+                  {
+                    @Html.ActionLink("Accept", "AcceptRequest", new { id=item.id }); 
+                    @Html.ActionLink("Decline", "DeclineRequest", new { id=item.id });
+                    @Html.ActionLink("Block", "Block", new { id=item.id });
+                  }
+              }
+              else if (item.friendStatus == "accepted")
+              {
+                @Html.ActionLink("De-Friend", "DeFriend", new { id=item.id }) 
+              }
+              else if (item.friendStatus == "blocked" && item.userName==ViewBag.name)
+              {
+                @Html.ActionLink("Unblock", "Unblock", new { id = item.id });
+              }
+              else //friendStatus is declined or de-friended
+              {
+                  ; //so display nothing
+              }
+                
+            }
+           @* @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.id })
+            *@
         </td>
     </tr>
 }

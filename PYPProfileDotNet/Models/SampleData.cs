@@ -36,7 +36,9 @@ namespace PYPProfileDotNet.Models
                 new FriendStatus { StatusId = 1, Status = "accepted" },
                 new FriendStatus { StatusId = 2, Status = "defriended" },
                 new FriendStatus { StatusId = 3, Status = "requested" },
-                new FriendStatus { StatusId = 4, Status = "declined" }
+                new FriendStatus { StatusId = 4, Status = "declined" },
+                new FriendStatus { StatusId = 5, Status = "blocked" },
+                new FriendStatus { StatusId = 6, Status = "blockedPending" }
             };
             friendStatuses.ForEach(s => context.FriendStatuses.Add(s));
 
