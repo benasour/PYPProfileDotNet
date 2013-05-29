@@ -470,6 +470,10 @@ textarea {
         margin-right: 4px;
     }
 
+input[readonly] {
+    background-color: rgba(172, 172, 172, 0.35);
+}
+
 /* info and errors */
 .message-info {
     border: 1px solid;

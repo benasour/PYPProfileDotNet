@@ -13,6 +13,7 @@ using DotNetOpenAuth.AspNet;
 using Microsoft.Web.WebPages.OAuth;
 using WebMatrix.WebData;
 using PYPProfileDotNet.Models;
+using System.Data;
 
 namespace PYPProfileDotNet.Controllers
 {
@@ -130,29 +131,100 @@ namespace PYPProfileDotNet.Controllers
         [HttpGet]
         public ActionResult Manage()
         {
+            return View();
+        }
+
+        [ChildActionOnly]
+        public ActionResult AccountDetails()
+        {
             UserAccount account = new UserAccount();
 
             using (PYPContext db = new PYPContext())
             {
-                User user = db.Users.SingleOrDefault(u => u.UserName == User.Identity.Name);
-                account.Name = user.Name;
-                account.UserName = user.UserName;
-                account.Email = user.Email;
+                User currentUser = db.Users.SingleOrDefault(u => u.UserName == User.Identity.Name);
+
+                account.Name = currentUser.Name;
+                account.Email = currentUser.Email;
+                account.UserName = currentUser.UserName;
             }
 
-            return View(account);
+            return PartialView("_AccountDetails", account);
+        }
+
+        [HttpPost]
+        public ActionResult AccountDetails(UserAccount account)
+        {
+            User user = new User();
+
+            using (PYPContext db = new PYPContext())
+            {
+                user = db.Users.Single(u => u.UserName == User.Identity.Name);
+                user.UserName = account.UserName;
+                user.Name = account.Name;
+                user.Email = account.Email;
+
+                if (db.Entry(user).State == EntityState.Modified)
+                {
+                    db.SaveChanges();
+                }
+            }
+
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [ChildActionOnly]
+        public ActionResult ChangePassword()
+        {
+            return PartialView("_ChangePassword");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(ChangePassword passwords)
+        {
+            if (ModelState.IsValid)
+            {
+                using (PYPContext db = new PYPContext())
+                {
+                    User user = db.Users.SingleOrDefault(u => u.UserName == User.Identity.Name);
+
+                    if (user != null && Crypto.VerifyHashedPassword(user.Password, passwords.CurrentPassword + user.Salt))
+                    {
+                        user.Password = Crypto.HashPassword(passwords.NewPassword + user.Salt);
+                        db.SaveChanges();
+                        return RedirectToAction("Index", "Home");
+                    }
+
+                    ModelState.AddModelError("", "Your current password did not match our records!");
+                }
+            }
+
+            return View("_ChangePassword", passwords);
         }
 
         [AllowAnonymous]
         [OutputCache(Location = OutputCacheLocation.None, NoStore = true)]
         public JsonResult IsUniqueUserName(string username)
         {
-            //return false;
-
             using (PYPContext db = new PYPContext())
             {
                 return db.Users.Any(u => u.UserName == username) ? Json(ErrorCodeToString(MembershipCreateStatus.DuplicateUserName), JsonRequestBehavior.AllowGet) : Json(true, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [OutputCache(Location = OutputCacheLocation.None, NoStore = true)]
+        public JsonResult IsUniqueUserNameExcludingCurrentUserName(string username)
+        {
+            using (PYPContext db = new PYPContext())
+            {
+                if (username != User.Identity.Name)
+                {
+                    return db.Users.Any(u => u.UserName == username) ? Json(ErrorCodeToString(MembershipCreateStatus.DuplicateUserName), JsonRequestBehavior.AllowGet) : Json(true, JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         #region Helpers

@@ -1,15 +1,26 @@
-﻿@model PYPProfileDotNet.Models.UserAccount
-
-@{
-    ViewBag.Title = "Manage";
+﻿@section themes {
+    @Styles.Render("~/Content/themes/base/css")
 }
 
-<h2 style="margin-bottom: 10px">Account Details</h2>
+<h2>Manage Account</h2>
+<div id="forms">
+    <ol>
+        <li><a href="#editAccount">Account Overview</a></li>
+        <li><a href="#changePassword">Change Password</a></li>
+    </ol>
+    <div id="editAccount">@Html.Action("AccountDetails")</div>
+    <div id="changePassword">@Html.Action("ChangePassword")</div>
+</div>
 
-<fieldset>
-    <div>@Html.DisplayNameFor(model => model.Name):&nbsp;@Html.DisplayFor(model => model.Name)</div>
-
-    <div>@Html.DisplayNameFor(model => model.UserName):&nbsp;@Html.DisplayFor(model => model.UserName)</div>
-
-    <div>@Html.DisplayNameFor(model => model.Email):&nbsp;@Html.DisplayFor(model => model.Email)</div>
-</fieldset>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/pyp")
+    <script>
+        $(document).ready(function () {
+            $('#forms').tabs();
+            $('#edit').click(enableReadonlyInputs);
+            $('.reset').click(resetForm);
+        });
+    </script>
+}
