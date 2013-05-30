@@ -14,8 +14,10 @@ namespace PYPProfileDotNet.Controllers
         //
         // GET: /Profile/
 
-        public ActionResult Index(int user_id = 0)
+        public ActionResult index(int user_id = 0)
         {
+            string curUser = User.Identity.Name;
+
             IEnumerable<Game> gameQuery =
                 from games in db.Games
                 select games;
@@ -30,8 +32,7 @@ namespace PYPProfileDotNet.Controllers
 
             User thisUser = db.Users.Single(u => u.UserId == user_id);
             ViewBag.User = thisUser;
-            ViewBag.isUser = (thisUser.UserName == User.Identity.Name);
-
+            ViewBag.doLink = (thisUser.UserName != curUser);
             // Grab all Friend entries where the desired User is Friend.User1 and Friend.User2 and the friendship is "accepted"
             var thisUserFriend1Entries =
                 from f in db.Friends
@@ -55,11 +56,15 @@ namespace PYPProfileDotNet.Controllers
             {
                 friendUserIds.Add(friend.User2.UserId);
                 friendUserNames.Add(friend.User2.UserName);
+                if (curUser == friend.User2.UserName||curUser == friend.User1.UserName)
+                    ViewBag.doLink = false;
             }
             foreach (Friend friend in thisUserFriend2Entries)
             {
                 friendUserIds.Add(friend.User1.UserId);
-                friendUserNames.Add(friend.User1.UserName);
+                friendUserNames.Add(friend.User1.UserName); 
+                if (curUser == friend.User1.UserName||curUser == friend.User2.UserName)
+                    ViewBag.doLink = false;
             }
 
             ViewBag.FriendUserIds = friendUserIds;

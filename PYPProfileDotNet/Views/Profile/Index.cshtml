@@ -5,7 +5,7 @@
 }
 
 <h1>@ViewBag.User.UserName</h1>
-@if (!ViewBag.isUser) 
+@if (ViewBag.doLink) 
 { 
     @Html.ActionLink("Add as friend", "../Friend/Create/", new { id = ViewBag.User.UserId }); 
 }
